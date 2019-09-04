@@ -50,10 +50,23 @@ select * from titles where emp_no='204120';
   
 -- ex5 [과제] 
 -- 현재 직책별로 평균연봉과 인원수를 구하되 직책별로 인원이 100명 이상인 직책만 출력하세요.  
-  
+  select b.title '직책', avg(a.salary) as '평균연봉', count(a.emp_no) as '인원'
+	from salaries a, titles b
+   where a.emp_no = b.emp_no
+     and a.to_date = '9999-01-01'
+     and b.to_date = '9999-01-01'
+group by b.title
+  having count(b.emp_no) >=100;
 -- ex6 [과제] 
 -- 현재 부서별로 현재 직책이 Engineer인 직원들에 대해서만 평균급여를 구하세요.
-
+  select c.dept_no as '부서번호', avg(a.salary) as '평균급여'
+    from salaries a, titles b, dept_emp c
+   where a.emp_no = b.emp_no
+     and b.emp_no = c.emp_no
+     and a.to_date = '9999-01-01'
+     and b.to_date = '9999-01-01'
+     and b.title = 'Engineer'
+group by c.dept_no;
 -- ex7 [과제] 
 -- 현재 직책별로 급여의 총합을 구하되 Engineer직책은 제외하세요 
 -- 단, 총합이 2,000,000,000이상인 직책만 나타내며 급여총합에
