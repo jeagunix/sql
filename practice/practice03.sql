@@ -35,6 +35,7 @@ select a.emp_no as '사번', concat(a.first_name, ' ', a.last_name) as '이름',
    and b.dept_no = c.dept_no
    and a.emp_no = d.emp_no
    and a.emp_no = e.emp_no
+   group by a.emp_no
 order by a.first_name;
 
 -- 문제5
