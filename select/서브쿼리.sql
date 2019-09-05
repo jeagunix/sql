@@ -74,62 +74,63 @@ group by b.title
                                              and b.to_date = '9999-01-01'
                                           group by b.title) a );
                                           
--- 방법3: join으로만 풀기 ( 굳이 서브쿼리를 쓸 필요가 없다 ) 
-select b.title, round(avg(a.salary))
-  from salaries a, titles b
-where a.emp_no = b.emp_no
-  and a.to_date = '9999-01-01'
-  and b.to_date = '9999-01-01'
+-- 방법3: join으로 만 풀기 (굳이 서브쿼리를 쓸 필요가 없다)
+  select b.title, round(avg(a.salary))
+	from salaries a, titles b
+   where a.emp_no = b.emp_no
+     and a.to_date = '9999-01-01'
+     and b.to_date = '9999-01-01'
 group by b.title
 order by avg(a.salary) asc
-   limit 0,1;
+   limit 0, 1;
    
 -- where 절인 경우,
--- 2) 다중(복수)행 연산자: in, any, all, not in
---    2-1) any 사용법
---          1. =any : in과 완전동일
--- 			2. >any, >=any : 최소값
--- 			3. <any, <=any : 최대값
--- 			4.. <>any, !=any : !=all과 동일 
---    2-2) all 사용법
---          1. =all
--- 			2. >all, >=all : 최대값
--- 			3. <all, <=all : 최소값
+--   2) 다중(복수)행 연산자: in, not in, any, all
+--      2-1) any 사용법
+--           1. =any : in와 완전동일            
+--           2. >any, >=any : 최소값
+--           3. <any, <=any : 최대값
+--           4. <>any, !=any : !=all 와 동일
+--      2-2) all 사용법
+--           1. =all
+--           2. >all, >=all : 최대값
+--           3. <all, <=all : 최소값
 
 -- 1) 현재 급여가 50000 이상인 직원 이름 출력
 
--- 방법1 : join으로 해결
+-- 방법1: join으로 해결
 select a.first_name
   from employees a, salaries b
  where a.emp_no = b.emp_no
    and b.to_date = '9999-01-01'
-   and b.salary >= 50000;
+   and b.salary > 50000;
    
--- 방법2 : in
+   
+-- 방법2: in
 select first_name
   from employees
- where emp_no in(select emp_no
-				   from salaries
-				  where to_date = '9999-01-01'
-					and salary > 50000);
-                    
--- 방법3 : any
+ where emp_no in (select emp_no
+                    from salaries
+                   where to_date = '9999-01-01'
+                     and salary > 50000);
+ -- 방법2: =any  
 select first_name
   from employees
  where emp_no =any (select emp_no
-				   from salaries
-				  where to_date = '9999-01-01'
-					and salary > 50000);
-                     
--- 2) 각 부서별로 최고웝급을 받는 직원의 이름과 월급출력
---    dept_no, first_name, max_salary
-   select c.dept_no, max(b.salary) as max_salary
+                    from salaries
+                   where to_date = '9999-01-01'
+                     and salary > 50000);
+
+-- 2) 각 부서별로 최고월급을 받는 직원의 이름과 월급출력
+--    dept_no, first_name, max_salary, 
+
+  select c.dept_no, max(b.salary) as max_salary 
 	from employees a, salaries b, dept_emp c
    where a.emp_no = b.emp_no
      and a.emp_no = c.emp_no
      and b.to_date = '9999-01-01'
      and c.to_date = '9999-01-01'
-group by c.dept_no
+group by c.dept_no;
 
 -- 방법1: where절에 서브쿼리 사용   
   select a.first_name, c.dept_no, b.salary 
@@ -164,7 +165,3 @@ group by c.dept_no);
      and b.salary = d.max_salary
      and b.to_date = '9999-01-01'
      and c.to_date = '9999-01-01';
-
-    
-                        
-
