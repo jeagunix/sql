@@ -48,10 +48,15 @@
 
 -- 문제4
 -- 현재, 사원들의 사번, 이름, 매니저 이름, 부서 이름으로 출력해 보세요.
-  select c.emp_no, concat(c.first_name, ' ', c.last_name), b.
-    from departments a, dept_manager b, employees c
+  select c.emp_no, concat(c.first_name, ' ', c.last_name), d.manager, a.dept_name
+    from departments a, dept_emp b, employees c,
+          (select b.dept_no, concat(a.first_name, ' ', a.last_name) as manager
+			from employees a, dept_manager b
+		   where a.emp_no = b.emp_no
+             and b.to_date = '9999-01-01') d
    where a.dept_no = b.dept_no
      and b.emp_no = c.emp_no
+     and b.dept_no = d.dept_no
      and b.to_date = '9999-01-01';
      
 
@@ -94,16 +99,47 @@
                                         
 -- 문제6.
 -- 평균 연봉이 가장 높은 부서는? 
-
+select *
+  from departments a, dept_emp b
+  where a.dept_no = b.dept_no
+    and a.dept_no = ( select b.dept_no
+						from employees a, dept_emp b, salaries c
+                        where a.emp_no = b.emp_no
+                        and a.emp_no = c.emp_no
+                        group by b.dept_no
+                        order by avg(c.salary) desc
+                        limit 0,1)
+group by a.dept_name;
      
 
 
 -- 문제7.                 
 -- 평균 연봉이 가장 높은 직책?
-
+select a.title, b.salary
+  from titles a, salaries b, employees c
+ where a.emp_no = c.emp_no
+   and b.emp_no = c.emp_no
+group by a.title
+order by avg(b.salary) desc
+  limit 0,1;
 
 -- 문제 8
 -- 현재 자신의 매니저보다 높은 연봉을 받고 있는 직원은?
 -- 부서이름, 사원이름, 연봉, 매니저 이름, 메니저 연봉 순으로 출력합니다.
- 
+ select c.dept_name, concat(a.first_name, ' ', a.last_name), d.salary, e.manager_name, e.manager_salary
+  from employees a, dept_emp b, departments c, salaries d,
+       (select b.dept_no, c.salary as manager_salary, concat(a.first_name, ' ', a.last_name) as manager_name
+          from employees a, dept_manager b, salaries c
+		 where a.emp_no = b.emp_no
+           and a.emp_no = c.emp_no
+           and b.to_date = '9999-01-01'
+           and c.to_date = '9999-01-01') e
+   where a.emp_no = b.emp_no
+     and a.emp_no = d.emp_no
+     and b.dept_no = c.dept_no
+     and c.dept_no = e.dept_no
+     and b.to_date = '9999-01-01'
+     and d.to_date = '9999-01-01'
+     and d.salary > e.manager_salary;
+
 
